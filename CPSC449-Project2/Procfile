@@ -1,0 +1,2 @@
+api: python3 -m bottle --bind=localhost:$PORT --debug --reload api
+timelines: python3 -m bottle --bind=localhost:$PORT --debug --reload timelines
