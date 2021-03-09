@@ -115,8 +115,7 @@ def authenticate(db, username):
 @post('/users/<username>/followers/')
 def follow(db,username):
     followers = request.json
-    userToFollow = request.forms.get('following_id')
-    
+    userToFollow = request.forms.get('userToFollow')
     followers = execute(db, 'INSERT INTO followers(username,userToFollow) VALUES (:username, :userToFollow)',followers)
     response.content_type = 'application/json'
     response.status = 200
@@ -128,4 +127,7 @@ def follow(db,username):
 def unfollow(db,username):
     followers = request.json
     userToRemove = request.forms.get('userToFollow')
-    followers[id] = execute(db, 'DELETE FROM followers WHERE id = ? AND follower_id = ? ', [id,follower_id])
+    followers = execute(db, 'DELETE FROM followers WHERE username = ? AND userToFollow = ? ', [username,userToRemove])
+    response.content_type = 'application/json'
+    response.status = 200
+    return {'followers': followers}

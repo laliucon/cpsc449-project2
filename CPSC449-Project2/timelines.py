@@ -69,29 +69,33 @@ def execute(db, sql, args=()):
 
 #Routes
 
-@get('/users/<id:int>/userTimeline')
-def userTimeline(db,id):
-    timeline = query(db, 'SELECT * FROM posts where user_id = ? ORDER BY timestamp DESC LIMIT 25',[id])
+@get('/users/<username>/userTimeline')
+def userTimeline(db,username):
+    timeline = query(db, 'SELECT * FROM posts where user_id = ? ORDER BY timestamp DESC LIMIT 25',[username])
+    response.content_type = 'application/json'
     return timeline
 
 @get('/publicTimeline')
 def publicTimeline(db):
     timeline = query(db, 'SELECT * FROM posts ORDER BY timestamp DESC LIMIT 25')
+    response.content_type = 'application/json'
     return timeline
 
-@get('/users/<id:int>/homeTimeline')
-def homeTimeline(db,id):
-    timeline = query(db,'SELECT * FROM posts WHERE id IN (SELECT following_id FROM followers WHERE follower_id=?) ORDER BY timestamp DESC LIMIT 25',[id])
+@get('/users/<username>/homeTimeline')
+def homeTimeline(db,username):
+    timeline = query(db,'SELECT * FROM posts WHERE username IN (SELECT userToFollow FROM username WHERE username=?) ORDER BY timestamp DESC LIMIT 25',[username])
+    response.content_type = 'application/json'
     return timeline
 
-@post('/users/<id:int>/posts')
-def post(db,id):
+@post('/users/<username>/posts')
+def post(db,username):
 
     text = request.forms.get('text')
-    if not posts:
-        abort(400)
-    try:
-        posts['id'] = execute(db, 'INSERT INTO posts(user_id, posts) VALUES (:id, :text)',posts)
+    timestamp = datetime.utcnow()
+    post = execute(db,'INSERT INTO posts(username,text,timestamp) VALUES (:username,:text,timestamp)', posts)
+    response.content_type = 'application/json'
+    return post
+        
     
 
 
