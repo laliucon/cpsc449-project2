@@ -19,12 +19,10 @@ from bottle.ext import sqlite
 # Set up app, plugins, and logging
 #
 app = bottle.default_app()
-app.config.load_config('./etc/api.ini')
+app.config.load_config('./api.ini')
 
 plugin = sqlite.Plugin(app.config['sqlite.dbfile'])
 app.install(plugin)
-
-logging.config.fileConfig(app.config['logging.config'])
 
 
 # Return errors in JSON
