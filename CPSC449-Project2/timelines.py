@@ -1,6 +1,5 @@
 import sys
 import textwrap
-import logging.config
 import sqlite3
 
 import bottle

@@ -91,19 +91,19 @@ def signUp(db):
         abort(400,f'All fields are required')
         return False
     try:
-        users['id'] = execute(db,'INSERT INTO users(username, email, password) VALUES(:username, :email, :password)', users)
+        execute(db,'INSERT INTO users(username, email, password) VALUES(:username, :email, :password)', users)
     except sqlite3.IntegrityError:
         abort(409, f'username or email has been taken')
         return False
     response.status = 201
-    response.headers['Content-Type'] = 'application/json'
+    response.content_type = 'application/json'
     return True
 
 @post('/users/<username>')
 def authenticate(db, username):
     password = request.forms.get('password')
 
-    db_password = query(db, 'SELECT password FROM users WHERE username = ?', [username], one= True)
+    db_password = query(db, 'SELECT password FROM users WHERE username = :username', users, one= True)
     if (password == db_password):
         response.status = 200
         response.headers['Content-Type'] = 'application/json'
@@ -112,16 +112,20 @@ def authenticate(db, username):
         abort(401)
         return False
 
-@post('/users/<id: int>/followers/')
-def follow(db,id):
+@post('/users/<username>/followers/')
+def follow(db,username):
     followers = request.json
-    following_id = request.forms.get('following_id')
-    followers[id] = execute(db, 'INSERT INTO followers(follower_id,following_id) VALUES (:id, :following_id)', followers)
+    userToFollow = request.forms.get('following_id')
+    
+    followers = execute(db, 'INSERT INTO followers(username,userToFollow) VALUES (:username, :userToFollow)',followers)
+    response.content_type = 'application/json'
+    response.status = 200
+    return {'followers': followers}
 
 
 
-@delete('users/<id:int>/followers/')
-def unfollow(db,id):
+@delete('users/<username>/followers/')
+def unfollow(db,username):
     followers = request.json
-    following_id = request.forms.get('following_id')
+    userToRemove = request.forms.get('userToFollow')
     followers[id] = execute(db, 'DELETE FROM followers WHERE id = ? AND follower_id = ? ', [id,follower_id])
